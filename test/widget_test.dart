@@ -76,4 +76,32 @@ void main() {
     // Verify the display shows Error
     expect(find.text('Error'), findsOneWidget);
   });
+
+  testWidgets('Calculator error state only clears with AC', (WidgetTester tester) async {
+    // Build our calculator app and trigger a frame.
+    await tester.pumpWidget(MyApp());
+
+    // Create error state with division by zero
+    await tester.tap(find.text('1'));
+    await tester.pump();
+    await tester.tap(find.text('/'));
+    await tester.pump();
+    await tester.tap(find.text('0'));
+    await tester.pump();
+    await tester.tap(find.text('='));
+    await tester.pump();
+
+    // Verify error state
+    expect(find.text('Error'), findsOneWidget);
+
+    // Try to input numbers - should not work
+    await tester.tap(find.text('5'));
+    await tester.pump();
+    expect(find.text('Error'), findsOneWidget); // Still in error state
+
+    // AC should clear error
+    await tester.tap(find.text('AC'));
+    await tester.pump();
+    expect(find.text('0'), findsOneWidget);
+  });
 }

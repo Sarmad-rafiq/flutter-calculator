@@ -179,6 +179,9 @@ class _CalculatorState extends State<Calculator> {
       finalResult = '0';
       opr = '';
       preOpr = '';
+    } else if (text == 'Error' && btnText != 'AC') {
+      // If in error state, only allow AC to clear
+      return;
     } else if (opr == '=' && btnText == '=') {
       // Repeat last operation
       if (preOpr == '+') {
@@ -231,9 +234,11 @@ class _CalculatorState extends State<Calculator> {
           : result = '-' + result.toString();
       finalResult = result;
     } else {
-      // Number input
-      result = result + btnText;
-      finalResult = result;
+      // Number input with length validation
+      if (result.length < 10) {  // Prevent display overflow
+        result = result + btnText;
+        finalResult = result;
+      }
     }
 
     setState(() {
