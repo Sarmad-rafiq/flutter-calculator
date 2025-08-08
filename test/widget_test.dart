@@ -1,4 +1,4 @@
-// This is a basic Flutter widget test.
+// This is a basic Flutter widget test for the Calculator app.
 //
 // To perform an interaction with a widget in your test, use the WidgetTester
 // utility in the flutter_test package. For example, you can send tap and scroll
@@ -11,20 +11,97 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:calculator_app/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Calculator displays initial value', (WidgetTester tester) async {
+    // Build our calculator app and trigger a frame.
+    await tester.pumpWidget(MyApp());
 
-    // Verify that our counter starts at 0.
+    // Verify that the calculator starts with 0 displayed.
     expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('Calculator'), findsOneWidget);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+  testWidgets('Calculator can perform basic addition', (WidgetTester tester) async {
+    // Build our calculator app and trigger a frame.
+    await tester.pumpWidget(MyApp());
+
+    // Tap '2', then '+', then '3', then '='
+    await tester.tap(find.text('2'));
+    await tester.pump();
+    
+    await tester.tap(find.text('+'));
+    await tester.pump();
+    
+    await tester.tap(find.text('3'));
+    await tester.pump();
+    
+    await tester.tap(find.text('='));
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verify the result is 5
+    expect(find.text('5'), findsOneWidget);
+  });
+
+  testWidgets('Calculator can clear with AC', (WidgetTester tester) async {
+    // Build our calculator app and trigger a frame.
+    await tester.pumpWidget(MyApp());
+
+    // Tap '5' then 'AC'
+    await tester.tap(find.text('5'));
+    await tester.pump();
+    
+    await tester.tap(find.text('AC'));
+    await tester.pump();
+
+    // Verify the display shows 0
+    expect(find.text('0'), findsOneWidget);
+  });
+
+  testWidgets('Calculator handles division by zero', (WidgetTester tester) async {
+    // Build our calculator app and trigger a frame.
+    await tester.pumpWidget(MyApp());
+
+    // Tap '5', then '/', then '0', then '='
+    await tester.tap(find.text('5'));
+    await tester.pump();
+    
+    await tester.tap(find.text('/'));
+    await tester.pump();
+    
+    await tester.tap(find.text('0'));
+    await tester.pump();
+    
+    await tester.tap(find.text('='));
+    await tester.pump();
+
+    // Verify the display shows Error
+    expect(find.text('Error'), findsOneWidget);
+  });
+
+  testWidgets('Calculator error state only clears with AC', (WidgetTester tester) async {
+    // Build our calculator app and trigger a frame.
+    await tester.pumpWidget(MyApp());
+
+    // Create error state with division by zero
+    await tester.tap(find.text('1'));
+    await tester.pump();
+    await tester.tap(find.text('/'));
+    await tester.pump();
+    await tester.tap(find.text('0'));
+    await tester.pump();
+    await tester.tap(find.text('='));
+    await tester.pump();
+
+    // Verify error state
+    expect(find.text('Error'), findsOneWidget);
+
+    // Try to input numbers - should not work
+    await tester.tap(find.text('5'));
+    await tester.pump();
+    expect(find.text('Error'), findsOneWidget); // Still in error state
+
+    // AC should clear error
+    await tester.tap(find.text('AC'));
+    await tester.pump();
+    expect(find.text('0'), findsOneWidget);
   });
 }

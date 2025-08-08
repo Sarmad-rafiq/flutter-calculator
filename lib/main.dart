@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+/// Entry point of the Calculator application
 void main() => runApp(MyApp());
 
+/// Root widget of the Calculator application
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -12,13 +14,15 @@ class MyApp extends StatelessWidget {
   }
 }
 
+/// Main Calculator widget that provides the UI and functionality
 class Calculator extends StatefulWidget {
   @override
   _CalculatorState createState() => _CalculatorState();
 }
 
+/// State class for the Calculator widget
 class _CalculatorState extends State<Calculator> {
-  dynamic displaytxt = 20;
+  /// Creates a circular calculator button with the specified text and colors
   Widget calcbutton(String btntxt, Color btncolor, Color txtcolor) {
     return Container(
       child: ElevatedButton(
@@ -34,7 +38,7 @@ class _CalculatorState extends State<Calculator> {
         ),
         style: ElevatedButton.styleFrom(
           shape: CircleBorder(),
-          primary: btncolor,
+          backgroundColor: btncolor,
           fixedSize: Size(80, 80),
         ),
       ),
@@ -135,7 +139,7 @@ class _CalculatorState extends State<Calculator> {
                   style: ElevatedButton.styleFrom(
                     shape: StadiumBorder(),
                     padding: EdgeInsets.fromLTRB(34, 20, 125, 20),
-                    primary: Colors.grey.shade800,
+                    backgroundColor: Colors.grey.shade800,
                   ),
                   child: Text(
                     '0',
@@ -155,16 +159,19 @@ class _CalculatorState extends State<Calculator> {
     );
   }
 
+  // Calculator state variables
   dynamic text = '0';
   double numOne = 0;
   double numTwo = 0;
-
   dynamic result = '';
   dynamic finalResult = '';
   dynamic opr = '';
   dynamic preOpr = '';
+
+  /// Main calculation handler for all button presses
   void calculation(btnText) {
     if (btnText == 'AC') {
+      // Clear all values
       text = '0';
       numOne = 0;
       numTwo = 0;
@@ -172,7 +179,11 @@ class _CalculatorState extends State<Calculator> {
       finalResult = '0';
       opr = '';
       preOpr = '';
+    } else if (text == 'Error' && btnText != 'AC') {
+      // If in error state, only allow AC to clear
+      return;
     } else if (opr == '=' && btnText == '=') {
+      // Repeat last operation
       if (preOpr == '+') {
         finalResult = add();
       } else if (preOpr == '-') {
@@ -187,6 +198,7 @@ class _CalculatorState extends State<Calculator> {
         btnText == 'x' ||
         btnText == '/' ||
         btnText == '=') {
+      // Handle operators
       if (numOne == 0) {
         numOne = double.parse(result);
       } else {
@@ -206,21 +218,27 @@ class _CalculatorState extends State<Calculator> {
       opr = btnText;
       result = '';
     } else if (btnText == '%') {
+      // Percentage calculation
       result = numOne / 100;
       finalResult = doesContainDecimal(result);
     } else if (btnText == '.') {
+      // Decimal point
       if (!result.toString().contains('.')) {
         result = result.toString() + '.';
       }
       finalResult = result;
     } else if (btnText == '+/-') {
+      // Toggle sign
       result.toString().startsWith('-')
           ? result = result.toString().substring(1)
           : result = '-' + result.toString();
       finalResult = result;
     } else {
-      result = result + btnText;
-      finalResult = result;
+      // Number input with length validation
+      if (result.length < 10) {  // Prevent display overflow
+        result = result + btnText;
+        finalResult = result;
+      }
     }
 
     setState(() {
@@ -228,30 +246,38 @@ class _CalculatorState extends State<Calculator> {
     });
   }
 
+  /// Performs addition operation
   String add() {
     result = (numOne + numTwo).toString();
     numOne = double.parse(result);
     return doesContainDecimal(result);
   }
 
+  /// Performs subtraction operation  
   String sub() {
     result = (numOne - numTwo).toString();
     numOne = double.parse(result);
     return doesContainDecimal(result);
   }
 
+  /// Performs multiplication operation
   String mul() {
     result = (numOne * numTwo).toString();
     numOne = double.parse(result);
     return doesContainDecimal(result);
   }
 
+  /// Performs division operation with error handling for division by zero
   String div() {
+    if (numTwo == 0) {
+      return 'Error';
+    }
     result = (numOne / numTwo).toString();
     numOne = double.parse(result);
     return doesContainDecimal(result);
   }
 
+  /// Removes unnecessary decimal zeros (e.g., "5.0" becomes "5")
   String doesContainDecimal(dynamic result) {
     if (result.toString().contains('.')) {
       List<String> splitDecimal = result.toString().split('.');
